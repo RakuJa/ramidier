@@ -18,3 +18,11 @@ cargo run --example turn_all_pads_on
 ```
 ### Why aren't you using channels?!
 I wanted to keep the most lightweight abstraction layer possible. Channels could be easily implemented on top.
+
+## What about no_std?
+no_std is currently out of scope for this project but contributions are welcome
+## Support me
+
+If you like this library, consider supporting me:
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/rakuja)
