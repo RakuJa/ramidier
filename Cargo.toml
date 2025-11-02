@@ -14,7 +14,8 @@ homepage = "https://github.com/RakuJa/ramidier"
 repository = "https://github.com/RakuJa/ramidier"
 license = "MIT"
 keywords = ["midi", "layer", "akai"]
-publish = false
+categories = ["encoding", "api-bindings"]
+publish = true
 
 [lib]
 name = "ramidier"
