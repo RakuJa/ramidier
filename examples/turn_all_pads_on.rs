@@ -1,3 +1,5 @@
+extern crate ramidier;
+
 use ramidier::enums::led_light::color::LedColor;
 use ramidier::enums::led_light::mode::LedMode;
 use ramidier::io::output::ChannelOutput;
