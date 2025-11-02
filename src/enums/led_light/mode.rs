@@ -1,6 +1,7 @@
-use crate::errors::validation::LedValidationError;
+use num_enum::TryFromPrimitive;
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Copy, Clone, Default, TryFromPrimitive)]
+#[repr(u8)]
 pub enum LedMode {
     On10Percent = 0x90,
     On25Percent = 0x91,
@@ -24,31 +25,5 @@ pub enum LedMode {
 impl From<LedMode> for u8 {
     fn from(mode: LedMode) -> Self {
         mode as Self
-    }
-}
-
-impl TryFrom<u8> for LedMode {
-    type Error = LedValidationError;
-
-    fn try_from(val: u8) -> Result<Self, Self::Error> {
-        match val {
-            0x90u8 => Ok(Self::On10Percent),
-            0x91u8 => Ok(Self::On25Percent),
-            0x92u8 => Ok(Self::On50Percent),
-            0x93u8 => Ok(Self::On65Percent),
-            0x94u8 => Ok(Self::On75Percent),
-            0x95u8 => Ok(Self::On90Percent),
-            0x96u8 => Ok(Self::On100Percent),
-            0x97u8 => Ok(Self::Pulsing1over16),
-            0x98u8 => Ok(Self::Pulsing1over8),
-            0x99u8 => Ok(Self::Pulsing1over4),
-            0x9Au8 => Ok(Self::Pulsing1over2),
-            0x9Bu8 => Ok(Self::Blinking1over24),
-            0x9Cu8 => Ok(Self::Blinking1over16),
-            0x9Du8 => Ok(Self::Blinking1over8),
-            0x9Eu8 => Ok(Self::Blinking1over4),
-            0x9Fu8 => Ok(Self::Blinking1over2),
-            _ => Err(LedValidationError::InvalidNumber(val)),
-        }
     }
 }

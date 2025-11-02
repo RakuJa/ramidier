@@ -46,6 +46,7 @@ midi-msg = "0.8"
 bon = "3"
 thiserror = "2"
 log = "0"
+num_enum = "0.7"
 
 [features]
 default = []

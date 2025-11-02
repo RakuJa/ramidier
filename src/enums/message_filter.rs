@@ -1,7 +1,8 @@
 use midir::Ignore;
+use num_enum::TryFromPrimitive;
 
 #[repr(u8)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, TryFromPrimitive)]
 /// An enum that is used to specify what kind of MIDI messages should
 /// be ignored when receiving messages.
 pub enum MessageFilter {

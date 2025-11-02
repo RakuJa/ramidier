@@ -1,4 +1,7 @@
-#[derive(Debug, Copy, Clone, Default)]
+use num_enum::TryFromPrimitive;
+
+#[derive(Debug, Copy, Clone, Default, TryFromPrimitive)]
+#[repr(u8)]
 pub enum LedColor {
     #[default]
     Off = 0,
