@@ -1,4 +1,4 @@
-use ramidier::enums::button::input_group::InputGroup;
+use ramidier::enums::button::base_input_group::BaseInputGroup;
 use ramidier::enums::led_light::color::LedColor;
 use ramidier::enums::led_light::mode::LedMode;
 use ramidier::enums::message_filter::MessageFilter;
@@ -41,10 +41,10 @@ fn run() -> Result<(), Box<dyn Error>> {
 pub fn listener_logic(midi_out: &mut ChannelOutput, stamp: u64, msg: &MidiInputData) {
     println!("{stamp}: {msg:?}");
     if msg.value > 0 {
-        if let InputGroup::Pads(k) = msg.input_group {
+        if let BaseInputGroup::Pads(k) = msg.input_group {
             let _ = midi_out.set_pad_led(LedMode::On100Percent, k, LedColor::Green);
         }
-    } else if let InputGroup::Pads(k) = msg.input_group {
+    } else if let BaseInputGroup::Pads(k) = msg.input_group {
         let _ = midi_out.set_pad_led(LedMode::Blinking1over2, k, LedColor::Off);
     }
 }

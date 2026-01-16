@@ -4,7 +4,7 @@ use crate::enums::button::soft_keys::SoftKey;
 use crate::errors::mapping::HardwareMappingError;
 
 #[derive(Debug, Copy, Clone)]
-pub enum InputGroup {
+pub enum BaseInputGroup {
     Pads(PadKey),
     SoftKeys(SoftKey),
     KnobCtrl(KnobCtrlKey),
@@ -19,26 +19,26 @@ pub enum InputGroup {
     Start,
 }
 
-impl From<InputGroup> for u8 {
-    fn from(value: InputGroup) -> Self {
+impl From<BaseInputGroup> for u8 {
+    fn from(value: BaseInputGroup) -> Self {
         match value {
-            InputGroup::Pads(x) => x.into(),
-            InputGroup::SoftKeys(x) => x.into(),
-            InputGroup::KnobCtrl(x) => x.into(),
-            InputGroup::Up => 64,
-            InputGroup::Down => 65,
-            InputGroup::Right => 67,
-            InputGroup::Left => 66,
-            InputGroup::StopAllClips => 81,
-            InputGroup::Shift => 98,
-            InputGroup::ResumePause => 91,
-            InputGroup::Start => 92,
-            InputGroup::Knob(index) => index + 47,
+            BaseInputGroup::Pads(x) => x.into(),
+            BaseInputGroup::SoftKeys(x) => x.into(),
+            BaseInputGroup::KnobCtrl(x) => x.into(),
+            BaseInputGroup::Up => 64,
+            BaseInputGroup::Down => 65,
+            BaseInputGroup::Right => 67,
+            BaseInputGroup::Left => 66,
+            BaseInputGroup::StopAllClips => 81,
+            BaseInputGroup::Shift => 98,
+            BaseInputGroup::ResumePause => 91,
+            BaseInputGroup::Start => 92,
+            BaseInputGroup::Knob(index) => index + 47,
         }
     }
 }
 
-impl TryFrom<u8> for InputGroup {
+impl TryFrom<u8> for BaseInputGroup {
     type Error = HardwareMappingError;
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {

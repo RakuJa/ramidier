@@ -7,4 +7,6 @@ pub enum HardwareMappingError {
     InvalidKnobCtrlIndex(u8),
     #[error("Number {0} not in valid range, check the available range of numbers")]
     InvalidSoftKeyIndex(u8),
+    #[error("Number {0} not in valid range, check the available range of numbers")]
+    InvalidKeyboardKeyIndex(u8),
 }

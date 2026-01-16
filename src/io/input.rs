@@ -1,4 +1,4 @@
-use crate::enums::button::input_group::InputGroup;
+use crate::enums::button::base_input_group::BaseInputGroup;
 use crate::enums::message_filter::MessageFilter;
 use crate::errors::io::{ChannelCreationError, TransmissionError};
 use crate::io::channel::Channel;
@@ -69,7 +69,7 @@ impl InputChannel {
                     MidiMsg::ChannelVoice {
                         channel,
                         msg: ChannelVoiceMsg::NoteOn { note, velocity: _ },
-                    } => InputGroup::try_from(note)
+                    } => BaseInputGroup::try_from(note)
                         .map(|input_group| MidiInputData {
                             channel,
                             input_group,
@@ -79,7 +79,7 @@ impl InputChannel {
                     MidiMsg::ChannelVoice {
                         channel,
                         msg: ChannelVoiceMsg::NoteOff { note, velocity: _ },
-                    } => InputGroup::try_from(note)
+                    } => BaseInputGroup::try_from(note)
                         .map(|input_group| MidiInputData {
                             channel,
                             input_group,
@@ -89,7 +89,7 @@ impl InputChannel {
                     MidiMsg::ChannelVoice {
                         channel,
                         msg: ChannelVoiceMsg::ControlChange { control },
-                    } => InputGroup::try_from(control.control())
+                    } => BaseInputGroup::try_from(control.control())
                         .map(|input_group| MidiInputData {
                             channel,
                             input_group,
