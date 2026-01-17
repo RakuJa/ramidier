@@ -1,11 +1,10 @@
-use crate::enums::button::input_group::InputGroup;
+use crate::enums::input_group::ChannelKind;
 use crate::enums::message_filter::MessageFilter;
-use crate::errors::io::{ChannelCreationError, TransmissionError};
+use crate::errors::io::ChannelCreationError;
 use crate::io::channel::Channel;
 use crate::io::input_data::MidiInputData;
 use bon::bon;
-use log::warn;
-use midi_msg::{ChannelVoiceMsg, MidiMsg, ReceiverContext};
+use midi_msg::{MidiMsg, ReceiverContext};
 use midir::{MidiInput, MidiInputConnection, MidiInputPort};
 
 pub struct InputChannel {
@@ -41,72 +40,30 @@ impl InputChannel {
     ///    Some("midir-input"),
     ///    move |stamp, received_input, data| listener_logic(&mut midi_out, stamp, &received_input, data),
     ///    MyDataStruct{}, // could also be () it there is no need for data
+    ///    PadsAndKnobsChannel, // could also be KeyboardChannel depending on your needs
     /// )?;
     /// ```
     /// # Errors
     ///
     /// Will return `ChannelCreationError` if there are low-level issues communicating with the device
-    pub fn listen<F, T: Send>(
+    pub fn listen<F, T: Send, C>(
         self,
         port_name: Option<&str>,
         mut input_handler_callback: F,
         data: T,
+        _channel_type: C, // type inference to avoid awkward turbofish syntax on caller
     ) -> Result<MidiInputConnection<T>, ChannelCreationError>
     where
-        F: FnMut(u64, MidiInputData, &mut T) + Send + 'static,
+        C: ChannelKind + Send + 'static,
+        F: FnMut(u64, MidiInputData<C::Group>, &mut T) + Send + 'static,
     {
         let mut ctx = ReceiverContext::new();
         let wrapper = move |timestamp: u64, midi_bytes: &[u8], user_data: &mut T| {
-            if let Ok((msg, _len)) =
-                MidiMsg::from_midi_with_context(midi_bytes, &mut ctx).map_err(|e| {
-                    TransmissionError::Receive {
-                        data: vec![],
-                        source: e,
-                    }
-                })
+            if let Some(input) = MidiMsg::from_midi_with_context(midi_bytes, &mut ctx)
+                .ok()
+                .and_then(|(msg, _)| C::decode(&msg))
             {
-                if let Some(x) = match msg {
-                    MidiMsg::ChannelVoice {
-                        channel,
-                        msg: ChannelVoiceMsg::NoteOn { note, velocity: _ },
-                    } => InputGroup::try_from(note)
-                        .map(|input_group| MidiInputData {
-                            channel,
-                            input_group,
-                            value: 1u8,
-                        })
-                        .ok(),
-                    MidiMsg::ChannelVoice {
-                        channel,
-                        msg: ChannelVoiceMsg::NoteOff { note, velocity: _ },
-                    } => InputGroup::try_from(note)
-                        .map(|input_group| MidiInputData {
-                            channel,
-                            input_group,
-                            value: 0u8,
-                        })
-                        .ok(),
-                    MidiMsg::ChannelVoice {
-                        channel,
-                        msg: ChannelVoiceMsg::ControlChange { control },
-                    } => InputGroup::try_from(control.control())
-                        .map(|input_group| MidiInputData {
-                            channel,
-                            input_group,
-                            value: control.value(),
-                        })
-                        .ok(),
-                    _ => None,
-                } {
-                    // call the original callback
-                    input_handler_callback(timestamp, x, user_data);
-                } else {
-                    warn!(
-                        "MIDI message received but not yet implemented, try using `listen_midi_msg`"
-                    );
-                }
-            } else {
-                warn!("Message received but could not be decoded, try using `listen_raw` ");
+                input_handler_callback(timestamp, input, user_data);
             }
         };
         self.listen_raw(port_name, wrapper, data)
@@ -135,18 +92,11 @@ impl InputChannel {
         F: FnMut(u64, MidiMsg, &mut T) + Send + 'static,
     {
         let mut ctx = ReceiverContext::new();
-        let wrapper =
-            move |timestamp: u64, midi_bytes: &[u8], user_data: &mut T| {
-                if let Ok((msg, _len)) = MidiMsg::from_midi_with_context(midi_bytes, &mut ctx)
-                    .map_err(|e| TransmissionError::Receive {
-                        data: vec![],
-                        source: e,
-                    })
-                {
-                    // call the original callback
-                    input_handler_callback(timestamp, msg, user_data);
-                }
-            };
+        let wrapper = move |timestamp: u64, midi_bytes: &[u8], user_data: &mut T| {
+            if let Ok((msg, _)) = MidiMsg::from_midi_with_context(midi_bytes, &mut ctx) {
+                input_handler_callback(timestamp, msg, user_data);
+            }
+        };
         self.listen_raw(port_name, wrapper, data)
     }
 

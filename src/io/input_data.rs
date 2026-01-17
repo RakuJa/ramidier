@@ -1,9 +1,8 @@
-use crate::enums::button::input_group::InputGroup;
 use midi_msg::Channel;
 
 #[derive(Debug)]
-pub struct MidiInputData {
+pub struct MidiInputData<C> {
     pub channel: Channel,
-    pub input_group: InputGroup,
+    pub input_group: C,
     pub value: u8,
 }
