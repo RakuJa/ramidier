@@ -96,7 +96,6 @@ impl InputChannel {
             if let Ok((msg, _)) = MidiMsg::from_midi_with_context(midi_bytes, &mut ctx) {
                 input_handler_callback(timestamp, msg, user_data);
             }
-            // call the original callback
         };
         self.listen_raw(port_name, wrapper, data)
     }
