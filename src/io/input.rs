@@ -40,6 +40,7 @@ impl InputChannel {
     ///    Some("midir-input"),
     ///    move |stamp, received_input, data| listener_logic(&mut midi_out, stamp, &received_input, data),
     ///    MyDataStruct{}, // could also be () it there is no need for data
+    ///    PadsAndKnobsChannel, // could also be KeyboardChannel depending on your needs
     /// )?;
     /// ```
     /// # Errors
