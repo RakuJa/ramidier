@@ -1,4 +1,4 @@
-use ramidier::enums::button::base_input_group::BaseInputGroup;
+use ramidier::enums::input_group::{PadsAndKnobsChannel, PadsAndKnobsInputGroup};
 use ramidier::enums::led_light::color::LedColor;
 use ramidier::enums::led_light::mode::LedMode;
 use ramidier::enums::message_filter::MessageFilter;
@@ -7,6 +7,7 @@ use ramidier::io::input_data::MidiInputData;
 use ramidier::io::output::ChannelOutput;
 use std::error::Error;
 use std::io::stdin;
+
 fn main() {
     match run() {
         Ok(()) => (),
@@ -32,19 +33,24 @@ fn run() -> Result<(), Box<dyn Error>> {
         Some("midir-read-input"),
         move |stamp, rx_data, ()| listener_logic(&mut midi_out, stamp, &rx_data),
         (),
+        PadsAndKnobsChannel,
     )?;
     input.clear();
     stdin().read_line(&mut input)?; // wait for next enter key press
     Ok(())
 }
 
-pub fn listener_logic(midi_out: &mut ChannelOutput, stamp: u64, msg: &MidiInputData) {
+pub fn listener_logic(
+    midi_out: &mut ChannelOutput,
+    stamp: u64,
+    msg: &MidiInputData<PadsAndKnobsInputGroup>,
+) {
     println!("{stamp}: {msg:?}");
     if msg.value > 0 {
-        if let BaseInputGroup::Pads(k) = msg.input_group {
+        if let PadsAndKnobsInputGroup::Pads(k) = msg.input_group {
             let _ = midi_out.set_pad_led(LedMode::On100Percent, k, LedColor::Green);
         }
-    } else if let BaseInputGroup::Pads(k) = msg.input_group {
+    } else if let PadsAndKnobsInputGroup::Pads(k) = msg.input_group {
         let _ = midi_out.set_pad_led(LedMode::Blinking1over2, k, LedColor::Off);
     }
 }
